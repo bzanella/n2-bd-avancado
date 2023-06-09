@@ -1,12 +1,17 @@
 package br.edu.unidep.interdisciplinar.controller;
 
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
+
+
+
 
 
 @RestController
@@ -18,8 +23,8 @@ public class PersonController {
 
     @GetMapping("/deletar/{id}")
     public ResponseEntity<String> deletarPessoa(
-      @PathVariable Long id,
-      @RequestParam(name = "confirmar", defaultValue = "true") boolean confirmar) {
+            @PathVariable Long id,
+            @RequestParam(name = "confirmar", defaultValue = "true") boolean confirmar) {
 
         if (confirmar) {
             String sql = "CALL pr_delete_person(?)";
@@ -35,9 +40,31 @@ public class PersonController {
     }
 
 
+
+
+    @GetMapping("/listar")
+    public ResponseEntity<Object> listarTodasAsPessoas() {
+        String sql = "SELECT * FROM TB_PESSOAS";
+
+        try {
+            List<Map<String, Object>> pessoas = jdbcTemplate.queryForList(sql);
+            if (!pessoas.isEmpty()) {
+                return ResponseEntity.ok(pessoas);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhuma pessoa encontrada");
+            }
+        } catch (DataAccessException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao processar a solicitação");
+        }
+    }
+
+
+
+
+
     @GetMapping("/listar/{id}")
     public ResponseEntity<Object> getPessoaById(@PathVariable Long id) {
-    String sql = "SELECT fn_list_person_by_id(?)";
+        String sql = "SELECT fn_list_person_by_id(?)";
 
         try {
             Map<String, Object> resultMap = jdbcTemplate.queryForMap(sql, id);
@@ -48,8 +75,7 @@ public class PersonController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao processar a solicitação");
         }
 
+    }
 
-
-}
 
 }

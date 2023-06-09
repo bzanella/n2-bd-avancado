@@ -10,4 +10,4 @@ public class InterdisciplinarApplication {
 		SpringApplication.run(InterdisciplinarApplication.class, args);
 	}
 
-}
+};
